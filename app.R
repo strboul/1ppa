@@ -14,10 +14,12 @@ ui <- dashboardPage(skin="red",
                        sidebarMenu(
                          menuItem("Operations", tabName = "dashboard", icon = icon("cog")),
                          menuItem("Charts", tabName = "charts", icon = icon("area-chart")),
-                         menuItem("Source code", icon = icon("file-code-o"), 
+                         menuItem("Rationale", icon = icon("sticky-note-o"), 
+                                  href = "http://data.metinyazici.org/2017/11/Product-pricing-analysis-shiny-app.html"),
+                         menuItem("Source code", icon = icon("code"), 
                                   href = "https://github.com/strboul/1ppa")
-                       )
-      ),
+      )
+        ),
         dashboardBody(
         
         ###CSS area###              
