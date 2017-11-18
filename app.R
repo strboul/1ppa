@@ -9,88 +9,89 @@ Pricing_Data <- read_csv("pricing_data.csv")
 
 ui <- dashboardPage(skin="red",
                     
-                    dashboardHeader(title = "PPA", titleWidth = 180),
-                    dashboardSidebar(width = 180,
-                                     sidebarMenu(
-                                       menuItem("Operations", tabName = "dashboard", icon = icon("cog")),
-                                       menuItem("Charts", tabName = "charts", icon = icon("area-chart")),
-                                       menuItem("Source code", icon = icon("file-code-o"), 
-                                                href = "https://github.com/strboul")
-                                     )
-                    ),
-                    dashboardBody(
-                      
-                      #Changing size of `infoBox`
-                      tags$head(tags$style(HTML('.info-box {min-height: 45px; min-width: 25px;} .info-box-icon {height: 45px; line-height: 45px; transform: scale(0.9);} .info-box-content {padding-top: 0px; padding-bottom: 0px;}'))),
-                      #Slider color
-                      tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {border-color: red;background: #dd4b39}")),
-                      #Radio button color
-                      tags$style("input[type='radio']:checked+span{
-                                 font-weight: bold;
-                                 color: #ff851b;
-                                 }
-                                 input[type='radio']+span{ 
-                                 color: gray; 
-                                 }"),
+        dashboardHeader(title = "PPA", titleWidth = 180),
+        dashboardSidebar(width = 180,
+                       sidebarMenu(
+                         menuItem("Operations", tabName = "dashboard", icon = icon("cog")),
+                         menuItem("Charts", tabName = "charts", icon = icon("area-chart")),
+                         menuItem("Source code", icon = icon("file-code-o"), 
+                                  href = "https://github.com/strboul/1ppa")
+                       )
+      ),
+        dashboardBody(
+        
+        ###CSS area###              
+        #Changing size of `infoBox`
+        tags$head(tags$style(HTML('.info-box {min-height: 45px; min-width: 25px;} .info-box-icon {height: 45px; line-height: 45px; transform: scale(0.9);} .info-box-content {padding-top: 0px; padding-bottom: 0px;}'))),
+        
+        #Slider color
+        tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {border-color: red;background: #dd4b39}")),
+        
+        #Radio button color
+        tags$style("input[type='radio']:checked+span{
+                   font-weight: bold;
+                   color: #ff851b;
+                   }
+                   input[type='radio']+span{ 
+                   color: gray; 
+                   }"),
     
-                      tabItems(
-                        tabItem(tabName = "dashboard",
-                                h2("Product Pricing Analysis", style="color:#dd4b39;"),
-                                column(width = 12,
-                                       tabBox(width=12,
-                                              title = "Outputs",
-                                              id = "tabset1", height = "268px",
-                                              tabPanel("Batch",
-                                                       infoBoxOutput("selected_kgs"),
-                                                       infoBoxOutput("selected_pallet"),
-                                                       infoBoxOutput("decimal_box"),
-                                                       infoBoxOutput("net_box"),
-                                                       infoBoxOutput("number_pallet"),
-                                                       infoBoxOutput("total_pallet_weight"),
-                                                       infoBoxOutput("net_product_weight"),
-                                                       infoBoxOutput("total_weight")
-                                              ),
-                                              tabPanel("Finance",
-                                                       infoBoxOutput("input.1"),
-                                                       infoBoxOutput("unit_cost"),
-                                                       infoBoxOutput("unit_selling"),
-                                                       infoBoxOutput("transport_cost"),
-                                                       infoBoxOutput("transport_selling"),
-                                                       infoBoxOutput("sub_total_selling"),
-                                                       infoBoxOutput("total_selling"),
-                                                       infoBoxOutput("cost_per_kg"),
-                                                       infoBoxOutput("selling_per_kg")
-                                              )
-                                       )),
-                                fluidRow(
-                                  column(width = 12,
-                                         box(width=12,
-                                             title = "Controls",
-                                             sliderInput("slider1", "Select kg:", min = 480, max = 2000, value = 540, step = 1, post = "kg"),
-                                             radioButtons("palletTypeInput", "Type of the pallet",
-                                                          choices = c("EURO", "STANDARD"),
-                                                          selected = "EURO")
-                                         ))
-                                  
-                                )
-                        ),
+        tabItems(
+          tabItem(tabName = "dashboard",
+                  h2("Product Pricing Analysis", style="color:#dd4b39;"),
+                  column(width = 12,
+                   tabBox(width=12,
+                          title = "Outputs",
+                          id = "tabset1", height = "268px",
+                          tabPanel("Batch",
+                                   infoBoxOutput("selected_kgs"),
+                                   infoBoxOutput("selected_pallet"),
+                                   infoBoxOutput("decimal_box"),
+                                   infoBoxOutput("net_box"),
+                                   infoBoxOutput("number_pallet"),
+                                   infoBoxOutput("total_pallet_weight"),
+                                   infoBoxOutput("net_product_weight"),
+                                   infoBoxOutput("total_weight")
+                          ),
+                          tabPanel("Finance",
+                                   infoBoxOutput("input.1"),
+                                   infoBoxOutput("unit_cost"),
+                                   infoBoxOutput("unit_selling"),
+                                   infoBoxOutput("transport_cost"),
+                                   infoBoxOutput("transport_selling"),
+                                   infoBoxOutput("sub_total_selling"),
+                                   infoBoxOutput("total_selling"),
+                                   infoBoxOutput("cost_per_kg"),
+                                   infoBoxOutput("selling_per_kg")
+                          )
+                   )),
+              fluidRow(
+                column(width = 12,
+                       box(width=12,
+                           title = "Controls",
+                           sliderInput("slider1", "Select kg:", min = 480, max = 2000,
+                                       value = 540, step = 1, post = "kg"),
+                           radioButtons("palletTypeInput", "Type of the pallet",
+                                        choices = c("EURO", "STANDARD"),
+                                        selected = "EURO")
+                       ))
+              )
+      ),
                         
-                        ####Second tab item: "Charts"
-                        tabItem(tabName = "charts",
-                                tabBox(width=12,
-                                       title = "Charts",
-                                       id = "tabset1", height = "268px",
-                                       tabPanel("Cost & Selling",
-                                                dygraphOutput("plot1")
-                                       ),
-                                       tabPanel("Per Kg",
-                                                dygraphOutput("plot2")
-                                       )
-                                       
-                                ))
-                        
-                      )
-                      )
+        ####Second tab item: "Charts"
+        tabItem(tabName = "charts",
+                tabBox(width=12,
+                       title = "Charts",
+                       id = "tabset1", height = "268px",
+                       tabPanel("Cost & Selling",
+                                dygraphOutput("plot1")
+                       ),
+                       tabPanel("Per Kg",
+                                dygraphOutput("plot2")
+                       )
+            ))
+        )
+    )
 )
 
 
@@ -104,7 +105,7 @@ server <- function(input, output) {
       )
   })
   
-  ####BATCH
+  ####BATCH####
   output$selected_kgs <- renderInfoBox({
     infoBox(
       "Selected kg", paste(input$slider1), icon = icon("sort"),
@@ -161,7 +162,7 @@ server <- function(input, output) {
     )
   })
   
-  ####FINANCE
+  ####FINANCE####
   output$input.1 <- renderInfoBox({
     infoBox(
       "Net Product Weight", paste(filtered()$Input.1), icon = icon("arrow-circle-o-down"),
@@ -171,35 +172,35 @@ server <- function(input, output) {
   
   output$unit_cost <- renderInfoBox({
     infoBox(
-      "Unit Cost", paste(round(filtered()$UnitCost,3),"$"), icon = icon("minus"),
+      "Unit Cost", paste(format(round(filtered()$UnitCost,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("minus"),
       color = "green"
     )
   })
   
   output$unit_selling <- renderInfoBox({
     infoBox(
-      "Unit Selling", paste(round(filtered()$UnitSelling,3),"$"), icon = icon("money"),
+      "Unit Selling", paste(format(round(filtered()$UnitSelling,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("money"),
       color = "green"
     )
   })
   
   output$transport_cost <- renderInfoBox({
     infoBox(
-      "Transport Cost", paste(round(filtered()$TransportCost,3),"$"), icon = icon("minus"),
+      "Transport Cost", paste(format(round(filtered()$TransportCost,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("minus"),
       color = "green"
     )
   })
   
   output$transport_selling <- renderInfoBox({
     infoBox(
-      "Transport Selling", paste(round(filtered()$TransportSelling,3),"$"), icon = icon("ship"),
+      "Transport Selling", paste(format(round(filtered()$TransportSelling,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("ship"),
       color = "green"
     )
   })
   
   output$sub_total_selling <- renderInfoBox({
     infoBox(
-      "Sub Total Selling", paste(round(filtered()$SubTotalSelling,3),"$"), icon = icon("money"),
+      "Sub Total Selling", paste(format(round(filtered()$SubTotalSelling,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("money"),
       color = "green"
     )
   })
@@ -211,25 +212,21 @@ server <- function(input, output) {
     )
   })
   
-  
-  format(15860.789, decimal.mark = ",", big.mark = ".")
-  
-  
   output$cost_per_kg <- renderInfoBox({
     infoBox(
-      "Cost per kg", paste(round(filtered()$CostPerKg,3),"$"), icon = icon("dollar"),
+      "Cost per kg", paste(format(round(filtered()$CostPerKg,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("dollar"),
       color = "green"
     )
   })
   
   output$selling_per_kg <- renderInfoBox({
     infoBox(
-      "Selling per kg", paste(round(filtered()$SellingPerKg,3),"$"), icon = icon("dollar"),
+      "Selling per kg", paste(format(round(filtered()$SellingPerKg,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("dollar"),
       color = "green"
     )
   })
   
-  ####CHARTS
+  ####CHARTS####
   output$plot1 <- renderDygraph({
     Pricing_Data %>%
       filter(PalletType == "EURO") %>%
