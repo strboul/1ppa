@@ -1,206 +1,235 @@
 library(shiny)
 library(rsconnect)
 library(shinythemes)
+library(shinydashboard)
 library(tidyverse)
 library(dygraphs)
 
 Pricing_Data <- read_csv("pricing_data.csv")
 
-ui <- fluidPage(theme = shinytheme("united"),
-                
-                tags$head(
-                  tags$style(HTML("
-                                  .g-1 {
-                                  background-color: #ededed;
-                                  }
-                                  .g-2 {
-                                  background-color: #e0e0e0;
-                                  }
+ui <- dashboardPage(skin="red",
+                    
+                    dashboardHeader(title = "PPA", titleWidth = 180),
+                    dashboardSidebar(width = 180,
+                                     sidebarMenu(
+                                       menuItem("Operations", tabName = "dashboard", icon = icon("cog")),
+                                       menuItem("Charts", tabName = "charts", icon = icon("area-chart")),
+                                       menuItem("Source code", icon = icon("file-code-o"), 
+                                                href = "https://github.com/strboul")
+                                     )
+                    ),
+                    dashboardBody(
+                      
+                      #Changing size of `infoBox`
+                      tags$head(tags$style(HTML('.info-box {min-height: 45px; min-width: 25px;} .info-box-icon {height: 45px; line-height: 45px; transform: scale(0.9);} .info-box-content {padding-top: 0px; padding-bottom: 0px;}'))),
+                      #Slider color
+                      tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {border-color: red;background: #dd4b39}")),
+                      #Radio button color
+                      tags$style("input[type='radio']:checked+span{
+                                 font-weight: bold;
+                                 color: #ff851b;
+                                 }
+                                 input[type='radio']+span{ 
+                                 color: gray; 
+                                 }"),
+    
+                      tabItems(
+                        tabItem(tabName = "dashboard",
+                                h2("Product Pricing Analysis", style="color:#dd4b39;"),
+                                column(width = 12,
+                                       tabBox(width=12,
+                                              title = "Outputs",
+                                              id = "tabset1", height = "268px",
+                                              tabPanel("Batch",
+                                                       infoBoxOutput("selected_kgs"),
+                                                       infoBoxOutput("selected_pallet"),
+                                                       infoBoxOutput("decimal_box"),
+                                                       infoBoxOutput("net_box"),
+                                                       infoBoxOutput("number_pallet"),
+                                                       infoBoxOutput("total_pallet_weight"),
+                                                       infoBoxOutput("net_product_weight"),
+                                                       infoBoxOutput("total_weight")
+                                              ),
+                                              tabPanel("Finance",
+                                                       infoBoxOutput("input.1"),
+                                                       infoBoxOutput("unit_cost"),
+                                                       infoBoxOutput("unit_selling"),
+                                                       infoBoxOutput("transport_cost"),
+                                                       infoBoxOutput("transport_selling"),
+                                                       infoBoxOutput("sub_total_selling"),
+                                                       infoBoxOutput("total_selling"),
+                                                       infoBoxOutput("cost_per_kg"),
+                                                       infoBoxOutput("selling_per_kg")
+                                              )
+                                       )),
+                                fluidRow(
+                                  column(width = 12,
+                                         box(width=12,
+                                             title = "Controls",
+                                             sliderInput("slider1", "Select kg:", min = 480, max = 2000, value = 540, step = 1, post = "kg"),
+                                             radioButtons("palletTypeInput", "Type of the pallet",
+                                                          choices = c("EURO", "STANDARD"),
+                                                          selected = "EURO")
+                                         ))
                                   
-                                  .b-red {
-                                  border-left: 6px solid red;
-                                  }
-                                  .b-orange {
-                                  border-left: 6px solid orange;
-                                  }
-                                  .b-purple {
-                                  border-left: 6px solid purple;
-                                  }
-                                  .b-green {
-                                  border-left: 6px solid green;
-                                  }
-                                  .b-blue {
-                                  border-left: 6px solid blue;
-                                  }
-                                  .b-black {
-                                  border-left: 6px solid black;
-                                  }
-                                  "))
-                  ),
-                
-                h1("Product Pricing Analysis", style="color:#E95420;"),
-                sidebarLayout(
-                  sidebarPanel(
-                    sliderInput("kgsInputSlider", "Batch (min 480, max 2000)", min = 480,                       max = 2000, value = 540, post = "kg"),
-                    br(),
-                    radioButtons("palletTypeInput", "Type of the pallet",
-                                 choices = c("EURO", "STANDARD"),
-                                 selected = "EURO")
-                  ),
-                  mainPanel(
-                    tabsetPanel(
-                      tabPanel("Output",
-                               fluidRow(
-                                 column(width = 5,
-                              br(),
-                              img(src='pallet.png', align = "left"),
-                              h3("Batch Output"),
-                              tags$div(class="g-1",htmlOutput("selected_kgs")),
-                              tags$div(class="g-2",htmlOutput("selected_pallet")),
-                              tags$div(class="g-1",htmlOutput("decimal_box")),
-                              tags$div(class="g-2",htmlOutput("net_box")),
-                              tags$div(class="g-1",htmlOutput("number_pallet")),
-                              tags$div(class="g-2",htmlOutput("total_pallet_weight")),
-                              tags$div(class="g-1",htmlOutput("net_product_weight")),
-                              tags$div(class="g-2",htmlOutput("total_weight")),
-                              br()
-                                 ),
-                                 column(width = 5,
-                                        br(),
-                                        img(src='cost.png', align = "left"),
-                                        h3("Finance Output"),
-                                        
-                                        withTags({
-                                          div(class="g-1",
-                                              htmlOutput("input.1"))
-                                        }),
-                                        
-                                        withTags({
-                                          div(class="g-2",
-                                              div(class="b-orange",
-                                                  htmlOutput("unit_cost"))
-                                          ) } ),
-                                        
-                                        withTags({
-                                          div(class="g-1",
-                                              div(class="b-purple",
-                                                  htmlOutput("unit_selling"))
-                                          ) } ),
-                                        
-                                        tags$div(class="g-2", htmlOutput("transport_cost")),
-                                        tags$div(class="g-1", htmlOutput("transport_selling")),
-                                        
-                                        withTags({
-                                          div(class="g-2",
-                                              div(class="b-blue",
-                                                  htmlOutput("sub_total_selling"))
-                                          ) } ),
-                                        
-                                        withTags({
-                                          div(class="g-1",
-                                              div(class="b-red",
-                                                  htmlOutput("total_selling"))
-                                          ) } ),
-                                        
-                                        withTags({
-                                          div(class="g-2",
-                                              div(class="b-black",
-                                                  htmlOutput("cost_per_kg"))
-                                          ) } ),
-                                        
-                                        withTags({
-                                          div(class="g-1",
-                                              div(class="b-green",
-                                                  htmlOutput("selling_per_kg"))
-                                          ) } ),
-                                        
-                                        br()
-                                 )
-                               )
-                      ),
-                      tabPanel("Plot total",
-                               dygraphOutput("plot1")
-                      ),
-                      tabPanel("Plot per kg",
-                               dygraphOutput("plot2")
-                      ),
-                      tabPanel("All Table",
-                               tableOutput("alltable")
+                                )
+                        ),
+                        
+                        ####Second tab item: "Charts"
+                        tabItem(tabName = "charts",
+                                tabBox(width=12,
+                                       title = "Charts",
+                                       id = "tabset1", height = "268px",
+                                       tabPanel("Cost & Selling",
+                                                dygraphOutput("plot1")
+                                       ),
+                                       tabPanel("Per Kg",
+                                                dygraphOutput("plot2")
+                                       )
+                                       
+                                ))
+                        
                       )
-                    )
-                  )
-                )
-                  )
+                      )
+)
 
 
-server <- function(input, output) {
+server <- function(input, output) { 
   
   filtered <- reactive({
     Pricing_Data %>%
       filter(
-        Input == input$kgsInputSlider,
+        Input == input$slider1,
         PalletType == input$palletTypeInput
       )
   })
   
-  ####BATCH####
-  output$selected_kgs <- renderUI({
-    HTML(paste("Selected kg:","<b>",input$kgsInputSlider,"</b>"))
-  })
-  output$selected_pallet <- renderUI({ 
-    HTML(paste("Selected pallet type:","<b>",input$palletTypeInput,"</b>"))
-  })
-  output$decimal_box <- renderUI({
-    HTML(paste("Decimal Box Number:","<b>",round(filtered()$DecimalBoxNumber,4),"</b>"))
-  })
-  output$net_box <- renderUI({
-    HTML(paste("Net Box Number:","<b>",filtered()$NetBoxNumber,"</b>"))
-  })
-  output$number_pallet <- renderUI({
-    HTML(paste("Number Pallet(s):","<b>",round(filtered()$NumberPallet,4),"</b>"))
-  })
-  output$total_pallet_weight <- renderUI({
-    HTML(paste("Total Pallet Weight:","<b>",round(filtered()$TotalPalletWeight,4),"</b>"))
-  })
-  output$net_product_weight <- renderUI({
-    HTML(paste("Net Product Weight:","<b>",filtered()$NetProductWeight,"</b>"))
-  })
-  output$total_weight <- renderUI({
-    HTML(paste("Total Weight:","<b>",round(filtered()$TotalWeight,4),"</b>"))
+  ####BATCH
+  output$selected_kgs <- renderInfoBox({
+    infoBox(
+      "Selected kg", paste(input$slider1), icon = icon("sort"),
+      color = "red"
+    )
   })
   
-  ####FINANCE####
-  output$input.1 <- renderUI({
-    HTML(paste("Net Product Weight:","<b>",filtered()$Input.1,"</b>"))
+  output$selected_pallet <- renderInfoBox({
+    infoBox(
+      "Selected pallet type", paste(input$palletTypeInput), icon = icon("circle-o"),
+      color = "orange"
+    )
   })
-  output$unit_cost <- renderUI({
-    HTML(paste("Unit Cost:","<b>",filtered()$UnitCost,"$","</b>"))
-  })
-  output$unit_selling <- renderUI({
-    HTML(paste("Unit Selling:","<b>",filtered()$UnitSelling,"$","</b>"))
-  })
-  output$transport_cost <- renderUI({
-    HTML(paste("Transport Cost:","<b>",filtered()$TransportCost,"$","</b>"))
-  })
-  output$transport_selling <- renderUI({
-    HTML(paste("Transport Selling:","<b>",filtered()$TransportSelling,"$","</b>"))
-  })
-  output$sub_total_selling <- renderUI({
-    HTML(paste("Sub Total Selling:","<b>",filtered()$SubTotalSelling,"$","</b>"))
-  })
-  output$total_selling <- renderUI({
-    HTML(paste("Total Selling:","<b>",round(filtered()$TotalSelling,4),"$","</b>"))
-  })
-  output$cost_per_kg <- renderUI({
-    HTML(paste("Cost per kg:","<b>",round(filtered()$CostPerKg,4),"$","</b>"))
-  })
-  output$selling_per_kg <- renderUI({
-    HTML(paste("Selling per kg:","<b>",round(filtered()$SellingPerKg,4),"$","</b>"))
-  })
-  #output$profit_per_kg <- renderUI({
-  #HTML(paste("Profit per kg:","<b>",round(filtered()$ProfitPerKg,4),"$","</b>"))
-  #})
   
+  output$decimal_box <- renderInfoBox({
+    infoBox(
+      "Decimal Box Number", paste(round(filtered()$DecimalBoxNumber,3)), icon = icon("square"),
+      color = "purple"
+    )
+  })
+  
+  output$net_box <- renderInfoBox({
+    infoBox(
+      "Net Box Number", paste(filtered()$NetBoxNumber), icon = icon("archive"),
+      color = "purple"
+    )
+  })
+  
+  output$number_pallet <- renderInfoBox({
+    infoBox(
+      "Number Pallet(s)", paste(round(filtered()$NumberPallet,3)), icon = icon("bars"),
+      color = "orange"
+    )
+  })
+  
+  output$total_pallet_weight <- renderInfoBox({
+    infoBox(
+      "Total Pallet Weight", paste(round(filtered()$TotalPalletWeight,3)), icon = icon("bars"),
+      color = "orange"
+    )
+  })
+  
+  output$net_product_weight <- renderInfoBox({
+    infoBox(
+      "Net Product Weight", paste(round(filtered()$NetProductWeight,3)), icon = icon("arrow-circle-o-down"),
+      color = "purple"
+    )
+  })
+  
+  output$total_weight <- renderInfoBox({
+    infoBox(
+      "Total Weight", paste(round(filtered()$TotalWeight,3)), icon = icon("shopping-bag"),
+      color = "orange"
+    )
+  })
+  
+  ####FINANCE
+  output$input.1 <- renderInfoBox({
+    infoBox(
+      "Net Product Weight", paste(filtered()$Input.1), icon = icon("arrow-circle-o-down"),
+      color = "purple"
+    )
+  })
+  
+  output$unit_cost <- renderInfoBox({
+    infoBox(
+      "Unit Cost", paste(round(filtered()$UnitCost,3),"$"), icon = icon("minus"),
+      color = "green"
+    )
+  })
+  
+  output$unit_selling <- renderInfoBox({
+    infoBox(
+      "Unit Selling", paste(round(filtered()$UnitSelling,3),"$"), icon = icon("money"),
+      color = "green"
+    )
+  })
+  
+  output$transport_cost <- renderInfoBox({
+    infoBox(
+      "Transport Cost", paste(round(filtered()$TransportCost,3),"$"), icon = icon("minus"),
+      color = "green"
+    )
+  })
+  
+  output$transport_selling <- renderInfoBox({
+    infoBox(
+      "Transport Selling", paste(round(filtered()$TransportSelling,3),"$"), icon = icon("ship"),
+      color = "green"
+    )
+  })
+  
+  output$sub_total_selling <- renderInfoBox({
+    infoBox(
+      "Sub Total Selling", paste(round(filtered()$SubTotalSelling,3),"$"), icon = icon("money"),
+      color = "green"
+    )
+  })
+  
+  output$total_selling <- renderInfoBox({
+    infoBox(
+      "Total Selling", paste(format(round(filtered()$TotalSelling,3),decimal.mark = ",",big.mark = "."),"$"), icon = icon("money"),
+      color = "green"
+    )
+  })
+  
+  
+  format(15860.789, decimal.mark = ",", big.mark = ".")
+  
+  
+  output$cost_per_kg <- renderInfoBox({
+    infoBox(
+      "Cost per kg", paste(round(filtered()$CostPerKg,3),"$"), icon = icon("dollar"),
+      color = "green"
+    )
+  })
+  
+  output$selling_per_kg <- renderInfoBox({
+    infoBox(
+      "Selling per kg", paste(round(filtered()$SellingPerKg,3),"$"), icon = icon("dollar"),
+      color = "green"
+    )
+  })
+  
+  ####CHARTS
   output$plot1 <- renderDygraph({
     Pricing_Data %>%
       filter(PalletType == "EURO") %>%
@@ -225,18 +254,6 @@ server <- function(input, output) {
       dyRangeSelector(height= 25)
   })
   
-  output$alltable <- renderTable({
-    filtered <- Pricing_Data %>%
-      filter(Input == input$kgsInputSlider,
-             PalletType == input$palletTypeInput
-      )
-    filtered},
-    striped = TRUE,
-    hover = TRUE,
-    spacing = 'xs',
-    digits = 3
-  )
-  
 }
 
-shinyApp(ui = ui, server = server)
+shinyApp(ui=ui, server=server)
