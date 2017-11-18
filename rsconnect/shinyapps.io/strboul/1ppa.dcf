@@ -1,0 +1,12 @@
+name: 1ppa
+title: 1ppa
+username:
+account: strboul
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 236961
+bundleId: 1082144
+url: https://strboul.shinyapps.io/1ppa/
+when: 1510965546.53267
+asMultiple: FALSE
+asStatic: FALSE
