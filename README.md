@@ -6,3 +6,6 @@
 - [x] Add images, cliparts (basic ones not very emphasized) next to the outputs
 - [x] Handle with shiny `reactivity`. Don't repeat the functions in every step
 - [x] Logical subsetting. Making a data table from `seq` and `lapply` and choose the logical breaks with subsetting. 
+
+#### See the blog post for the rationale
+http://data.metinyazici.org
