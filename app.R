@@ -15,7 +15,7 @@ ui <- dashboardPage(skin="red",
                          menuItem("Operations", tabName = "dashboard", icon = icon("cog")),
                          menuItem("Charts", tabName = "charts", icon = icon("area-chart")),
                          menuItem("Rationale", icon = icon("sticky-note-o"), 
-                                  href = "http://data.metinyazici.org/2017/11/Product-pricing-analysis-shiny-app.html"),
+                                  href = "http://data.metinyazici.org/2017/11/product-pricing-analysis-shiny-app.html"),
                          menuItem("Source code", icon = icon("code"), 
                                   href = "https://github.com/strboul/1ppa")
       )
