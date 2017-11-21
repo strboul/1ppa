@@ -5,9 +5,9 @@ account: strboul
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 236961
-bundleId: 1085822
+bundleId: 1087805
 url: https://strboul.shinyapps.io/1ppa/
-when: 1511190526.38569
+when: 1511271537.29319
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: LICENSE|README.md
